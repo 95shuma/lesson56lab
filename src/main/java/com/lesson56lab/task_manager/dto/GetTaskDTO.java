@@ -13,7 +13,7 @@ public class GetTaskDTO {
     private String id;
     private String title;
     private String status;
-    private LocalDateTime date;
+    private LocalDateTime endDate;
     private String userId;
 
     public static GetTaskDTO getTaskDTO(Task task){
@@ -21,7 +21,7 @@ public class GetTaskDTO {
                 .id(task.getId())
                 .title(task.getTitle())
                 .status(task.getStatus().getName())
-                .date(task.getEndDate())
+                .endDate(task.getEndDate())
                 .userId(task.getUser().getId())
                 .build();
     }
