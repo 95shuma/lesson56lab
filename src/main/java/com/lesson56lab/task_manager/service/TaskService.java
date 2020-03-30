@@ -10,10 +10,10 @@ import com.lesson56lab.task_manager.repository.UserRepository;
 import com.lesson56lab.task_manager.state.StateContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.time.LocalDateTime;
 
 @Service
 public class TaskService {
@@ -23,14 +23,15 @@ public class TaskService {
     @Autowired
     TaskRepository tr;
 
-    public Iterable<GetTaskDTO> getAllTask(@ApiIgnore Pageable pageable, String userName){
-        User user = ur.findUserByName(userName);
-        return tr.findAll(pageable).map(GetTaskDTO::getTaskDTO)
-                .filter(getTaskDTO -> user.getId().equals(getTaskDTO.getUserId())).toList();
+    public Iterable<GetTaskDTO> getAllTask(@ApiIgnore Pageable pageable, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        String id = user.getId();
+        return tr.findAllByUserId(pageable,id)
+                .map(GetTaskDTO::getTaskDTO);
     }
 
-    public DetailTaskDTO createTask(CreateTaskDTO createTaskDTO, String userName){
-        User user = ur.findUserByName(userName);
+    public DetailTaskDTO createTask(CreateTaskDTO createTaskDTO, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
         Task task = Task.builder()
                 .title(createTaskDTO.getTitle())
                 .description(createTaskDTO.getDescription())
@@ -54,4 +55,5 @@ public class TaskService {
         Task task = tr.findTaskById(id);
         return DetailTaskDTO.from(task);
     }
+
 }
